@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desert Operations Solo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0c2461 0%, #1a1a2e 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .header {
+            margin-bottom: 40px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        
+        h1 {
+            font-size: 4em;
+            color: #f6b93b;
+            text-shadow: 0 0 20px rgba(246, 185, 59, 0.5);
+            margin-bottom: 10px;
+            letter-spacing: 3px;
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            color: #82ccdd;
+            margin-bottom: 30px;
+        }
+        
+        .game-card {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            border: 3px solid #f6b93b;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        
+        .faction-select {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .faction {
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 180px;
+            border: 2px solid transparent;
+        }
+        
+        .faction:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+        
+        .faction.active {
+            border-color: #f6b93b;
+            box-shadow: 0 0 20px rgba(246, 185, 59, 0.3);
+        }
+        
+        .faction-gdi {
+            background: linear-gradient(135deg, #2e86c1 0%, #1b4f72 100%);
+        }
+        
+        .faction-nod {
+            background: linear-gradient(135deg, #c0392b 0%, #7b241c 100%);
+        }
+        
+        .faction-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .faction-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .faction-desc {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .difficulty-select {
+            margin: 30px 0;
+        }
+        
+        .difficulty-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .difficulty-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .difficulty-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .difficulty-btn.active {
+            background: #f6b93b;
+            color: #0c2461;
+        }
+        
+        .start-btn {
+            background: linear-gradient(135deg, #f6b93b 0%, #e55039 100%);
+            color: white;
+            border: none;
+            padding: 20px 50px;
+            font-size: 1.5em;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 30px 0;
+            transition: all 0.3s;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        
+        .start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(229, 80, 57, 0.5);
+        }
+        
+        .controls-info {
+            background: rgba(0,0,0,0.5);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            text-align: left;
+            border-left: 4px solid #3498db;
+        }
+        
+        .controls-info h3 {
+            color: #f6b93b;
+            margin-bottom: 10px;
+        }
+        
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .control-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .key {
+            background: #2c3e50;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-weight: bold;
+            min-width: 60px;
+            text-align: center;
+        }
+        
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2.5em;
+            }
+            
+            .faction-select {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .faction {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚔️ DESERT OPERATIONS ⚔️</h1>
+            <p class="subtitle">Versão Solo - Jogue contra a IA</p>
+        </div>
+        
+        <div class="game-card">
+            <h2>ESCOLHA SUA FACÇÃO</h2>
+            <div class="faction-select">
+                <div class="faction faction-gdi" onclick="selectFaction('gdi')">
+                    <div class="faction-icon">⚡</div>
+                    <div class="faction-name">GDI</div>
+                    <div class="faction-desc">Tecnologia avançada e poder de fogo pesado</div>
+                </div>
+                
+                <div class="faction faction-nod" onclick="selectFaction('nod')">
+                    <div class="faction-icon">🔥</div>
+                    <div class="faction-name">NOD</div>
+                    <div class="faction-desc">Táticas de guerrilha e armas especiais</div>
+                </div>
+            </div>
+            
+            <div class="difficulty-select">
+                <h2>DIFICULDADE</h2>
+                <div class="difficulty-buttons">
+                    <button class="difficulty-btn" onclick="selectDifficulty('easy')">FÁCIL</button>
+                    <button class="difficulty-btn active" onclick="selectDifficulty('normal')">NORMAL</button>
+                    <button class="difficulty-btn" onclick="selectDifficulty('hard')">DIFÍCIL</button>
+                </div>
+            </div>
+            
+            <button class="start-btn" onclick="startGame()">
+                🎮 INICIAR MISSÃO
+            </button>
+        </div>
+        
+        <div class="controls-info">
+            <h3>🎮 CONTROLES</h3>
+            <div class="controls-grid">
+                <div class="control-item">
+                    <span class="key">CLIQUE</span>
+                    <span>Selecionar unidades</span>
+                </div>
+                <div class="control-item">
+                    <span class="key">CLIQUE + ARRASTE</span>
+                    <span>Seleção múltipla</span>
+                </div>
+                <div class="control-item">
+                    <span class="key">BOTÃO DIREITO</span>
+                    <span>Mover/Atacar</span>
+                </div>
+                <div class="control-item">
+                    <span class="key">1-4</span>
+                    <span>Grupos de unidades</span>
+                </div>
+                <div class="control-item">
+                    <span class="key">A</span>
+                    <span>Ataque móvel</span>
+                </div>
+                <div class="control-item">
+                    <span class="key">H</span>
+                    <span>Voltar para base</span>
+                </div>
+                <div class="control-item">
+                    <span class="key">WASD</span>
+                    <span>Mover câmera</span>
+                </div>
+                <div class="control-item">
+                    <span class="key">MOUSE ROLO</span>
+                    <span>Zoom</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let selectedFaction = 'gdi';
+        let selectedDifficulty = 'normal';
+        
+        function selectFaction(faction) {
+            selectedFaction = faction;
+            
+            // Atualiza visual
+            document.querySelectorAll('.faction').forEach(f => {
+                f.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // Efeito sonoro simples
+            playClickSound();
+        }
+        
+        function selectDifficulty(difficulty) {
+            selectedDifficulty = difficulty;
+            
+            // Atualiza visual
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            playClickSound();
+        }
+        
+        function startGame() {
+            // Salva configurações
+            localStorage.setItem('faction', selectedFaction);
+            localStorage.setItem('difficulty', selectedDifficulty);
+            
+            // Vai para o jogo
+            window.location.href = 'game.html';
+        }
+        
+        function playClickSound() {
+            // Som de clique simples
+            const audio = new Audio();
+            audio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ';
+            audio.play().catch(e => console.log("Som não suportado"));
+        }
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            // Seleciona GDI por padrão
+            document.querySelector('.faction-gdi').classList.add('active');
+        });
+    </script>
+</body>
+</html>

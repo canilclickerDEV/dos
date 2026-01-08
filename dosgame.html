@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desert Operations - Em Missão</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            color: white;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        #gameContainer {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        #gameHeader {
+            background: linear-gradient(to right, #1a1a2e, #16213e);
+            padding: 10px 20px;
+            border-bottom: 3px solid #f6b93b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+        
+        .gameTitle {
+            font-size: 1.5em;
+            color: #f6b93b;
+            font-weight: bold;
+        }
+        
+        #resources {
+            display: flex;
+            gap: 20px;
+            font-size: 1.2em;
+        }
+        
+        .resource {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .resource-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+        }
+        
+        .crystals { background: #9b59b6; }
+        .power { background: #f1c40f; }
+        .tiberium { background: #27ae60; }
+        
+        #gameContent {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        #gameCanvas {
+            flex: 1;
+            background: #0c2461;
+            cursor: crosshair;
+        }
+        
+        #sidePanel {
+            width: 300px;
+            background: rgba(0, 0, 0, 0.9);
+            border-left: 2px solid #34495e;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #unitInfo {
+            background: #2c3e50;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            min-height: 150px;
+        }
+        
+        #buildMenu {
+            background: #34495e;
+            padding: 15px;
+            border-radius: 8px;
+            flex: 1;
+            margin-bottom: 20px;
+        }
+        
+        #buildButtons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .build-btn {
+            padding: 10px;
+            background: #2c3e50;
+            border: 1px solid #7f8c8d;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.2s;
+        }
+        
+        .build-btn:hover {
+            background: #3498db;
+            transform: scale(1.05);
+        }
+        
+        .build-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        #gameMessages {
+            background: #1a1a2e;
+            padding: 10px;
+            border-radius: 8px;
+            height: 150px;
+            overflow-y: auto;
+            font-size: 0.9em;
+        }
+        
+        .message {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-left: 3px solid #f6b93b;
+            background: rgba(255,255,255,0.05);
+        }
+        
+        #minimap {
+            width: 250px;
+            height: 150px;
+            background: #1a1a2e;
+            border: 2px solid #f6b93b;
+            margin: 10px auto;
+            position: relative;
+        }
+        
+        #gameFooter {
+            background: #1a1a2e;
+            padding: 10px;
+            border-top: 2px solid #34495e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+        
+        #selectedUnits {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            max-width: 60%;
+        }
+        
+        .unit-portrait {
+            width: 40px;
+            height: 40px;
+            background: #3498db;
+            border-radius: 5px;
+            border: 2px solid #2980b9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            flex-shrink: 0;
+        }
+        
+        .unit-portrait.gdi { background: #2e86c1; border-color: #1b4f72; }
+        .unit-portrait.nod { background: #c0392b; border-color: #7b241c; }
+        
+        #gameControls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .control-btn {
+            padding: 8px 15px;
+            background: #2c3e50;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .control-btn:hover {
+            background: #3498db;
+        }
+        
+        #pauseBtn {
+            background: #e74c3c;
+        }
+        
+        #pauseBtn:hover {
+            background: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <!-- Cabeçalho com recursos -->
+        <div id="gameHeader">
+            <div class="gameTitle">
+                <span id="factionDisplay">GDI</span> - Missão: Eliminar NOD
+            </div>
+            <div id="resources">
+                <div class="resource">
+                    <div class="resource-icon crystals"></div>
+                    <span id="crystalsCount">1000</span>
+                </div>
+                <div class="resource">
+                    <div class="resource-icon power"></div>
+                    <span id="powerCount">100/100</span>
+                </div>
+                <div class="resource">
+                    <div class="resource-icon tiberium"></div>
+                    <span id="tiberiumCount">50</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Conteúdo principal -->
+        <div id="gameContent">
+            <!-- Área do jogo -->
+            <canvas id="gameCanvas" width="1024" height="768"></canvas>
+            
+            <!-- Painel lateral -->
+            <div id="sidePanel">
+                <div id="unitInfo">
+                    <h3>Informações da Unidade</h3>
+                    <p id="selectedUnitName">Nenhuma unidade selecionada</p>
+                    <div id="unitHealth"></div>
+                </div>
+                
+                <div id="buildMenu">
+                    <h3>Construção</h3>
+                    <div id="buildButtons">
+                        <!-- Botões serão gerados pelo JavaScript -->
+                    </div>
+                </div>
+                
+                <div id="minimap"></div>
+                
+                <div id="gameMessages">
+                    <h3>Log do Jogo</h3>
+                    <div id="messagesList">
+                        <div class="message">Base estabelecida. Inicie a construção!</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Rodapé com unidades selecionadas -->
+        <div id="gameFooter">
+            <div id="selectedUnits">
+                <!-- Unidades selecionadas aparecem aqui -->
+            </div>
+            <div id="gameControls">
+                <button class="control-btn" onclick="game.pauseGame()" id="pauseBtn">⏸️ PAUSAR</button>
+                <button class="control-btn" onclick="game.saveGame()">💾 SALVAR</button>
+                <button class="control-btn" onclick="location.href='index.html'">🏠 MENU</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/game.js"></script>
+    <script src="js/render.js"></script>
+    <script src="js/ai.js"></script>
+    
+    <script>
+        // Inicializa o jogo quando a página carrega
+        document.addEventListener('DOMContentLoaded', () => {
+            const faction = localStorage.getItem('faction') || 'gdi';
+            const difficulty = localStorage.getItem('difficulty') || 'normal';
+            
+            // Inicializa o jogo
+            window.game = new DesertOpsGame(faction, difficulty);
+            
+            // Atualiza display da facção
+            document.getElementById('factionDisplay').textContent = 
+                faction === 'gdi' ? 'GDI' : 'NOD';
+        });
+    </script>
+</body>
+</html>
